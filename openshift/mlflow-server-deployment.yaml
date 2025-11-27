@@ -25,8 +25,8 @@ spec:
             - --upstream=http://localhost:5000
             - --http-address=:8443
             - --cookie-secret=SECRET
-            - '--openshift-delegate-urls={"/": {"group":"route.openshift.io", "resource":"routes", "verb": "get", "namespace":"rosa"}}'
-            - --openshift-sar={"verb":"get","resource":"routes","resourceAPIGroup":"route.openshift.io","namespace":"ml"}
+            - '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"mlflow"}}'
+            - '--openshift-sar={"verb":"get","resource":"routes","resourceAPIGroup":"route.openshift.io","namespace":"ml"}'
           ports:
             - containerPort: 8443
               name: https
@@ -36,7 +36,8 @@ spec:
               port: 8443
               scheme: HTTP
             initialDelaySeconds: 30
-           timeoutSeconds: 1
+            timeoutSeconds: 1
+            periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /oauth/healthz
@@ -44,6 +45,7 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 5
             timeoutSeconds: 1
+            periodSeconds: 5
           resources:
             limits:
               cpu: 100m
@@ -53,16 +55,16 @@ spec:
               memory: 256Mi
 
         - name: mlflow
-          image: "docker.io/hemaveeradhi/mlflow:amd64"
+          image: docker.io/hemaveeradhi/mlflow:amd64
           imagePullPolicy: IfNotPresent
           command:
             - mlflow
           args:
             - server
-            - '--host'
-            - '0.0.0.0'
-            - '--backend-store-uri'
-            - 'postgresql://admin:<pwd>@postgresql.ml.svc:5432/<db-name>?sslmode=disable'
+            - --host
+            - 0.0.0.0
+            - --backend-store-uri
+            - postgresql://admin:<pwd>@postgresql.ml.svc:5432/<db-name>?sslmode=disable
           ports:
             - containerPort: 5000
               protocol: TCP
@@ -73,3 +75,4 @@ spec:
             limits:
               cpu: "500m"
               memory: 1Gi
+
