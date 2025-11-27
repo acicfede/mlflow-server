@@ -1,6 +1,9 @@
-kind: ServiceAccount
 apiVersion: v1
+kind: ServiceAccount
 metadata:
   name: mlflow
+  namespace: ml
   annotations:
-      serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"mlflow"}}'
+    argocd.argoproj.io/sync-wave: "-2"
+    serviceaccounts.openshift.io/oauth-redirectreference.primary: >
+      {"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"mlflow"}}
