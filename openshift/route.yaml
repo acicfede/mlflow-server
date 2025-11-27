@@ -2,11 +2,10 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: mlflow
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
+  namespace: ml
 spec:
   to:
     kind: Service
     name: mlflow-server
   tls:
-    termination: Reencrypt
+    termination: edge
