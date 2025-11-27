@@ -13,14 +13,3 @@ spec:
   selector:
     name: mlflow-server
   type: ClusterIP
----
-apiVersion: v1
-kind: Route
-metadata:
-  name: mlflow
-spec:
-  to:
-    kind: Service
-    name: mlflow-server
-  tls:
-    termination: Reencrypt
