@@ -16,6 +16,10 @@ spec:
         name: mlflow-server
     spec:
       serviceAccountName: mlflow
+      volumes:
+        - name: tls
+          secret:
+            secretName: mlflow-tls   # <-- autogenerato da OpenShift
       containers:
         - name: oauth-proxy
           image: registry.redhat.io/openshift4/ose-oauth-proxy:v4.12.0
@@ -23,42 +27,23 @@ spec:
             - --provider=openshift
             - --openshift-service-account=mlflow
             - --upstream=http://localhost:5000
-            - --http-address=:8443
+            - --https-address=:8443
+            - --tls-cert=/etc/tls/private/tls.crt
+            - --tls-key=/etc/tls/private/tls.key
             - --cookie-secret=SECRET
-            - '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"mlflow"}}'
+            - '--openshift-delegate-urls={"/": {"group":"route.openshift.io", "resource":"routes", "verb": "get", "namespace":"ml"}}'
             - '--openshift-sar={"verb":"get","resource":"routes","resourceAPIGroup":"route.openshift.io","namespace":"ml"}'
           ports:
             - containerPort: 8443
               name: https
-          livenessProbe:
-            httpGet:
-              path: /oauth/healthz
-              port: 8443
-              scheme: HTTP
-            initialDelaySeconds: 30
-            timeoutSeconds: 1
-            periodSeconds: 5
-          readinessProbe:
-            httpGet:
-              path: /oauth/healthz
-              port: 8443
-              scheme: HTTP
-            initialDelaySeconds: 5
-            timeoutSeconds: 1
-            periodSeconds: 5
-          resources:
-            limits:
-              cpu: 100m
-              memory: 256Mi
-            requests:
-              cpu: 100m
-              memory: 256Mi
+          volumeMounts:
+            - name: tls
+              mountPath: /etc/tls/private
 
         - name: mlflow
           image: docker.io/hemaveeradhi/mlflow:amd64
           imagePullPolicy: IfNotPresent
-          command:
-            - mlflow
+          command: ["mlflow"]
           args:
             - server
             - --host
@@ -68,11 +53,3 @@ spec:
           ports:
             - containerPort: 5000
               protocol: TCP
-          resources:
-            requests:
-              cpu: "500m"
-              memory: 1Gi
-            limits:
-              cpu: "500m"
-              memory: 1Gi
-
