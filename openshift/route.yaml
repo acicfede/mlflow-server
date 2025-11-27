@@ -8,4 +8,8 @@ spec:
     kind: Service
     name: mlflow-server
   tls:
-    termination: edge
+    termination: reencrypt
+    destinationCACertificate: |
+      -----BEGIN CERTIFICATE-----
+      {{ automatically provided by OpenShift }}
+      -----END CERTIFICATE-----
