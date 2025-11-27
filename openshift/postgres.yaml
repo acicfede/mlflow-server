@@ -30,7 +30,6 @@ spec:
       labels:
         name: postgresql
     spec:
-      # 🔑 Fix fondamentale per OpenShift: abilita scrittura sul PVC
       securityContext:
         fsGroup: 26
       volumes:
@@ -48,6 +47,8 @@ spec:
               value: "<pwd>"
             - name: POSTGRESQL_DATABASE
               value: "<db-name>"
+            - name: PGDATA
+              value: /var/lib/pgsql/data/userdata   # 💥 FIX CRITICO
           ports:
             - containerPort: 5432
               protocol: TCP
