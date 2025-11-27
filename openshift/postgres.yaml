@@ -30,6 +30,9 @@ spec:
       labels:
         name: postgresql
     spec:
+      # 🔑 Fix fondamentale per OpenShift: abilita scrittura sul PVC
+      securityContext:
+        fsGroup: 26
       volumes:
         - name: postgresql-data
           persistentVolumeClaim:
