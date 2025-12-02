@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: ml
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+
+    scrape_configs:
+      - job_name: 'mlflow'
+        static_configs:
+          - targets: ['mlflow-server.ml.svc:5000']
+
+      - job_name: 'postgresql'
+        static_configs:
+          - targets: ['postgres-exporter.ml.svc:9187']
+
+      - job_name: 'kubernetes-pods'
+        kubernetes_sd_configs:
+        - role: pod
